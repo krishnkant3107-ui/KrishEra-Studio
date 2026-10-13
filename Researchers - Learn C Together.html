@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Researchers - Learn C Together</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2316223B'/%3E%3Crect x='8' y='30' width='32' height='8' rx='4' fill='%23FFD84D'/%3E%3Cpath d='M17 36V12h9.5a7 7 0 0 1 0 14H17M26 26l8 10' fill='none' stroke='%23fff' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#EDF1F6; --surface:#fff; --ink:#16223B; --muted:#5B6783; --line:#D5DCE8;
+  --hl:#FFD84D; --hl-soft:#FFF3BF; --teal:#1F7A6D; --teal-soft:#DDF1EC; --danger:#B3261E; --warn:#7A5600; --grid:rgba(22,34,59,.045);
+  --part:#FFD84D; --full:#1F7A6D; --on-full:#fff; --on-part:#16223B;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0F1624;--surface:#18223A;--ink:#E8EDF7;--muted:#9AA7C2;--line:#2B3856;--hl-soft:#3A3417;--teal:#59C9B5;--teal-soft:#16332F;--danger:#FF8A80;--warn:#F2C14E;--grid:rgba(255,255,255,.04);--part:#C9A227;--full:#59C9B5;--on-full:#0F1624;--on-part:#0F1624}
+}
+:root[data-theme="dark"]{--bg:#0F1624;--surface:#18223A;--ink:#E8EDF7;--muted:#9AA7C2;--line:#2B3856;--hl-soft:#3A3417;--teal:#59C9B5;--teal-soft:#16332F;--danger:#FF8A80;--warn:#F2C14E;--grid:rgba(255,255,255,.04);--part:#C9A227;--full:#59C9B5;--on-full:#0F1624;--on-part:#0F1624}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background-color:var(--bg);color:var(--ink);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;
+  font:400 16px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.15}
+h1{font-size:clamp(1.8rem,5vw,2.6rem);font-weight:800;letter-spacing:-.015em}
+h2{font-size:1.25rem;font-weight:800}
+h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+button,input,summary{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:6px}
+.hl{background:linear-gradient(transparent 55%,var(--hl) 55%,var(--hl) 92%,transparent 92%);padding:0 .12em;color:var(--ink)}
+:root[data-theme="dark"] .hl,:root:not([data-theme="light"]) .hl{color:var(--ink)}
+.muted{color:var(--muted)} .small{font-size:.875rem}
+.wrap{max-width:980px;margin:0 auto;padding:1rem 1rem 4rem}
+.btn{border:1.5px solid var(--ink);background:var(--surface);border-radius:10px;padding:.5rem .9rem;font-weight:600;min-height:44px}
+.btn:hover{background:var(--hl-soft)}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn.primary:hover{background:var(--teal);border-color:var(--teal);color:var(--on-full)}
+.btn.sm{min-height:36px;padding:.25rem .65rem;font-size:.875rem}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn[disabled]{opacity:.45;cursor:default}
+.panel{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:1rem 1.1rem}
+input.t{width:100%;padding:.6rem .7rem;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);min-height:44px}
+input.t:focus{border-color:var(--teal);outline:none;box-shadow:0 0 0 3px var(--teal-soft)}
+label.f{display:block;font-weight:600;font-size:.9rem;margin-bottom:.85rem}
+label.f input{display:block;margin-top:.3rem;font-weight:400}
+.err{color:var(--danger);font-size:.9rem;margin:-.2rem 0 .8rem}
+
+/* brand */
+.brand{display:flex;align-items:center;gap:.55rem;background:none;border:0;padding:0}
+.brand svg{width:38px;height:38px;flex:none;border-radius:12px;box-shadow:0 0 0 1.5px var(--line)}
+.brand b{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.35rem;letter-spacing:-.01em}
+
+/* top bar */
+.top{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap}
+.who{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--bg);display:inline-grid;place-items:center;font-weight:700;font-size:.8rem;flex:none}
+.tabs{display:flex;gap:.25rem;border-bottom:1.5px solid var(--line);margin-bottom:1.1rem}
+.tab{background:none;border:0;padding:.65rem 1rem;font-weight:600;color:var(--muted);border-radius:8px 8px 0 0}
+.tab[aria-selected="true"]{color:var(--ink);background:linear-gradient(transparent 62%,var(--hl) 62%,var(--hl) 88%,transparent 88%)}
+:root[data-theme="dark"] .tab[aria-selected="true"]{background:linear-gradient(transparent 62%,var(--part) 62%,var(--part) 88%,transparent 88%)}
+
+/* auth */
+.authgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:2rem;align-items:center;min-height:80vh}
+@media(max-width:780px){.authgrid{grid-template-columns:1fr;gap:1.2rem;min-height:0;padding-top:1rem}}
+.authgrid .brand svg{width:56px;height:56px}
+.authgrid .brand b{font-size:2rem}
+.pitch{list-style:none;padding:0;margin:1.2rem 0 0;display:grid;gap:.6rem}
+.pitch li{display:flex;gap:.6rem;align-items:flex-start}
+.pitch i{font-style:normal;font-family:var(--mono);font-weight:700;background:var(--hl);color:#16223B;border-radius:6px;padding:0 .4rem;font-size:.85rem;margin-top:.15rem}
+.atabs{display:flex;gap:.25rem;border-bottom:1.5px solid var(--line);margin-bottom:1rem}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:1rem;margin-bottom:1.2rem}
+@media(max-width:760px){.hero{grid-template-columns:1fr}}
+.pct{font-family:var(--mono);font-weight:700;font-size:clamp(2.6rem,9vw,4rem);line-height:1}
+.bar{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin:.8rem 0 .4rem}
+.bar>i{display:block;height:100%;background:var(--full);transition:width .3s}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.8rem}
+.stat b{display:block;font-family:var(--mono);font-size:1.4rem}
+.stat span{font-size:.8rem;color:var(--muted)}
+.startrow{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.8rem}
+.startrow input{padding:.45rem .6rem;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);min-height:40px}
+.timer{display:flex;flex-direction:column;justify-content:space-between;gap:.6rem}
+.clock{font-family:var(--mono);font-weight:700;font-size:clamp(2.4rem,8vw,3.4rem);letter-spacing:.02em}
+
+/* memory map */
+.mem{display:grid;grid-template-columns:repeat(10,1fr);gap:.45rem;margin:.6rem 0 1.4rem}
+@media(max-width:560px){.mem{grid-template-columns:repeat(5,1fr)}}
+.cell{position:relative;border:1.5px solid var(--ink);border-radius:8px;background:var(--surface);padding:.45rem .2rem .35rem;text-align:center;font-family:var(--mono);overflow:hidden;min-height:56px;isolation:isolate;color:var(--ink)}
+.cell i{position:absolute;left:0;right:0;bottom:0;background:var(--part);z-index:-1;transition:height .3s}
+.cell.part{color:var(--ink)}
+.cell.full{color:var(--on-full)}
+.cell.full i{background:var(--full)}
+.cell b{display:block;font-size:.95rem}
+.cell small{font-size:.7rem}
+.cell.sel{box-shadow:0 0 0 3px var(--teal)}
+.cell.today::after{content:"";position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--danger)}
+.legend{font-size:.8rem;color:var(--muted)}
+
+/* day panel */
+.dayhead{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:1rem}
+.addr{font-family:var(--mono);font-weight:700;color:var(--muted);font-size:.85rem}
+.cols{display:grid;grid-template-columns:1fr 1.5fr;gap:1rem}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.chk{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem .1rem;border-bottom:1px solid var(--line);cursor:pointer}
+.chk:last-child{border-bottom:0}
+.chk input{width:22px;height:22px;margin:.1rem 0 0;accent-color:var(--teal);flex:none}
+.chk.done span.t{text-decoration:line-through;color:var(--muted)}
+.lv{font-size:.72rem;font-weight:700;border-radius:99px;padding:.02rem .5rem;margin-left:.4rem;white-space:nowrap}
+.lv.Easy{background:var(--teal-soft);color:var(--teal)}
+.lv.Medium{background:var(--hl-soft);color:var(--warn)}
+.lv.Challenge{border:1.5px solid var(--danger);color:var(--danger)}
+.tip{background:var(--teal-soft);border-radius:10px;padding:.55rem .75rem;margin-top:.6rem;font-size:.92rem}
+.nav{display:flex;justify-content:space-between;gap:.5rem;margin-top:1rem}
+.sec{margin:1.6rem 0 .3rem}
+
+/* group */
+.chips{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1rem}
+.chip{border:1.5px solid var(--ink);background:var(--surface);border-radius:99px;padding:.3rem .9rem;font-weight:600;min-height:38px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.gsum{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:.9rem 0}
+@media(max-width:620px){.gsum{grid-template-columns:repeat(2,1fr)}}
+.gsum .panel b{display:block;font-family:var(--mono);font-size:1.5rem}
+.code{font-family:var(--mono);font-weight:700;letter-spacing:.14em;font-size:1.25rem}
+.mrow{display:grid;gap:.5rem;margin-bottom:.7rem}
+.mtop{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.rank{font-family:var(--mono);font-weight:700;width:2.2rem;height:2.2rem;border-radius:8px;display:grid;place-items:center;background:var(--line);flex:none}
+.rank.r1{background:var(--hl);color:#16223B}
+.mname{flex:1;min-width:120px;font-weight:600}
+.mscore{font-family:var(--mono);font-weight:700;font-size:1.25rem;text-align:right}
+.mscore small{font-size:.75rem;color:var(--muted);font-weight:500}
+.meta{display:flex;gap:1rem;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.strip{display:grid;grid-template-columns:repeat(20,1fr);gap:3px}
+.strip s{display:block;height:14px;border-radius:3px;background:var(--line);text-decoration:none}
+.strip s.p{background:var(--part)}
+.strip s.f{background:var(--full)}
+.me{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-soft)}
+.empty{border:2px dashed var(--line);border-radius:14px;padding:1.4rem;text-align:center;color:var(--muted)}
+details.panel summary{cursor:pointer;font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.9rem}
+@media(max-width:620px){.row2{grid-template-columns:1fr}}
+.inline{display:flex;gap:.5rem}
+.inline input{flex:1;min-width:0}
+.toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:10px;font-weight:600;z-index:30;max-width:92vw;text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="muted" style="padding:2rem 0">Loading...</p></div>
+<script>
+"use strict";
+/* =====================================================================
+   Researchers - C in 20 Days (tracker + groups)
+   Do modes:  "api"   -> Flask backend (live, sab devices par)
+              "local" -> sirf is browser mein (demo / prototype)
+   ===================================================================== */
+const DAYS = [{"day": 1, "title": "Setup, Hello World, Variables, I/O", "topics": ["GCC ya Code::Blocks install karna, pehla Hello World", "Program structure: #include, main(), comments", "Data types: int, float, char, double", "printf aur scanf (format specifiers)"], "tips": ["Har statement ke end mein semicolon lagana mat bhoolo.", "scanf mein variable se pehle & lagta hai (string ko chhodkar)."], "mini": "Simple interest calculator", "qs": ["Screen par 'Hello, World!' print karo.", "Apna naam, college aur course 3 alag lines mein print karo.", "Do integers input lekar unka sum print karo.", "Do numbers ka sum, difference aur product print karo.", "Principal, rate aur time lekar simple interest nikalo.", "Rectangle ka area aur perimeter nikalo.", "Circle ka area aur circumference nikalo (#define se PI use karo).", "sizeof se int, float, char, double ka size print karo.", "Ek character input lekar uski ASCII value print karo.", "Teesre variable ki madad se do numbers swap karo."]}, {"day": 2, "title": "Operators, Type Casting, Constants", "topics": ["Arithmetic, relational, logical operators", "Increment/decrement (++a vs a++)", "Bitwise operators: &, |, ^, ~, <<, >>", "Type casting, const aur #define"], "tips": ["Integer division mein decimal hissa kat jata hai: 10/3 = 3.", "Operator precedence yaad nahi to bracket lagao."], "mini": "Temperature converter", "qs": ["Celsius ko Fahrenheit mein badlo.", "Kilometer ko meter aur centimeter mein badlo.", "3-digit number ke digits ka sum % aur / se nikalo.", "Teesre variable ke bina do numbers swap karo.", "10/3, 10%3 aur 10/3.0 ka output print karke samjhao.", "5 subjects ke marks lekar total aur percentage nikalo.", "Seconds ko hours, minutes, seconds mein badlo.", "++a aur a++ ka fark ek program se dikhao.", "Do numbers par &, |, ^, ~ operators chalao.", "Ternary operator (?:) se do numbers mein bada number nikalo."]}, {"day": 3, "title": "Decision Making: if-else, switch", "topics": ["if, else if, else, nested if", "switch-case aur break", "Conditions mein && aur ||", "= aur == ka fark"], "tips": ["if (a = 5) galti hai, if (a == 5) sahi hai.", "switch mein break na ho to agle case bhi chal jate hain."], "mini": "Calculator (switch-case se)", "qs": ["Number even hai ya odd, check karo.", "Number positive, negative ya zero hai, batao.", "Teen numbers mein sabse bada nikalo.", "Leap year check karo.", "Percentage se grade nikalo (A, B, C, Fail).", "Character vowel hai ya consonant, switch se check karo.", "+ - * / wala calculator switch-case se banao.", "1 se 7 number dalne par din ka naam print karo.", "Teen sides se check karo triangle valid hai ya nahi.", "Number 5 aur 11 dono se divisible hai ya nahi, check karo."]}, {"day": 4, "title": "Loops: for, while, do-while", "topics": ["for, while, do-while ka syntax aur fark", "break aur continue", "Infinite loop aur usse bachna", "Loop mein counter, sum aur product ka pattern"], "tips": ["Loop likhne se pehle soch lo: shuru kahan, rukna kab, badhna kitna.", "do-while kam se kam ek baar zaroor chalta hai."], "mini": "Multiplication table aur factorial", "qs": ["1 se 100 tak ke numbers print karo.", "Kisi number ka table print karo.", "Pehle n natural numbers ka sum nikalo.", "n ka factorial nikalo.", "Number ke digits ka sum nikalo.", "Number ko reverse karo (123 se 321).", "Number mein kitne digits hain, ginti karo.", "1 se 50 ke beech ke saare even numbers print karo.", "pow() ke bina x ki power y nikalo.", "User 0 dale to loop break ho, aur 3 ke multiples continue se skip ho."]}, {"day": 5, "title": "Nested Loops aur Patterns", "topics": ["Nested for loops: outer = rows, inner = columns", "Star patterns (triangle, pyramid, diamond)", "Number aur alphabet patterns", "Space aur star ka relation (pyramid ke liye)"], "tips": ["Pehle row aur column ka formula kaagaz par likho, phir code.", "Pattern ko dry run karo: i=1 par kya print hoga, i=2 par kya."], "mini": "6-7 patterns ek menu mein", "qs": ["Stars ka right triangle banao.", "Stars ka ulta (inverted) triangle banao.", "Stars ka pyramid banao.", "Number triangle: 1, 12, 123, 1234.", "Floyd's triangle banao.", "Diamond pattern banao.", "Hollow square pattern banao.", "Pascal's triangle banao.", "Alphabet triangle: A, AB, ABC, ABCD.", "Number pyramid: 1, 121, 12321."]}, {"day": 6, "title": "Loops Practice: Number Programs", "topics": ["Prime, Fibonacci, GCD, LCM", "Palindrome, Armstrong, perfect, strong numbers", "Decimal se binary conversion", "Flag variable ka use"], "tips": ["Prime check mein sqrt(n) tak hi loop chalao, speed badh jati hai.", "Aaj ke programs interview mein sabse zyada puchhe jate hain."], "mini": "Number-programs ka menu", "qs": ["Number prime hai ya nahi, check karo.", "1 se 100 ke beech saare prime numbers print karo.", "Pehle n Fibonacci terms print karo.", "Number palindrome hai ya nahi, check karo.", "Armstrong number check karo (153 jaisa).", "Do numbers ka GCD aur LCM nikalo.", "Perfect number check karo (6, 28).", "Decimal number ko binary mein badlo.", "Strong number check karo (145 = 1! + 4! + 5!).", "Number mein har digit kitni baar aaya, frequency nikalo."]}, {"day": 7, "title": "Functions aur Recursion", "topics": ["Function declaration, definition, calling", "Return type aur parameters", "Call by value", "Recursion: base case aur recursive case", "Storage classes: auto, static, extern"], "tips": ["Recursion mein base case sabse pehle likho, warna program crash hoga.", "Static variable function ke baad bhi apni value yaad rakhta hai."], "mini": "Factorial aur Fibonacci recursion se", "qs": ["add(a, b) function banao jo sum return kare.", "isPrime() function banao jo 1 ya 0 return kare.", "Recursion se factorial nikalo.", "Recursion se Fibonacci nikalo.", "Recursion se digits ka sum nikalo.", "Recursion se x ki power y nikalo.", "Recursion se GCD nikalo.", "Function se number reverse karo.", "Static variable se ginti rakho: function kitni baar call hua.", "Tower of Hanoi (3 disks) recursion se solve karo."]}, {"day": 8, "title": "Arrays (1D)", "topics": ["Array declaration aur initialization", "Input/output loop se", "Index 0 se shuru hota hai", "Array ke bahar jaana (out of bounds) ka khatra"], "tips": ["Array mein n elements hon to last index n-1 hota hai.", "Size se zyada index access karne par garbage ya crash milta hai."], "mini": "Student marks: average aur topper", "qs": ["n numbers input lekar array print karo.", "Array ka sum aur average nikalo.", "Array mein maximum aur minimum nikalo.", "Array ko ulta (reverse) print karo.", "Array mein kitne even aur odd elements hain, ginti karo.", "Array ka doosra sabse bada element nikalo.", "Array ke duplicate elements dhundo.", "Array mein kisi position par element insert karo.", "Array se kisi position ka element delete karo.", "Do arrays ko merge karke teesra array banao."]}, {"day": 9, "title": "2D Arrays aur Matrix", "topics": ["2D array declaration, row aur column", "Nested loop se matrix input/output", "Matrix operations: add, transpose, multiply", "Diagonal aur triangular matrix"], "tips": ["Matrix multiply ke liye pehle ke columns = doosre ke rows hone chahiye.", "Teen nested loops matrix multiply mein lagte hain (i, j, k)."], "mini": "Matrix calculator", "qs": ["3x3 matrix input lekar print karo.", "Do matrices ko add karo.", "Matrix ka transpose nikalo.", "Do matrices ko multiply karo.", "Diagonal elements ka sum nikalo.", "Har row aur har column ka sum nikalo.", "Check karo matrix identity matrix hai ya nahi.", "Check karo matrix symmetric hai ya nahi.", "Upper triangular matrix print karo.", "Matrix ka sabse bada element aur uski position nikalo."]}, {"day": 10, "title": "Searching aur Sorting", "topics": ["Linear search", "Binary search (sorted array par)", "Bubble, selection, insertion sort", "Comparisons aur swaps ki ginti"], "tips": ["Binary search sirf sorted array par chalta hai.", "Bubble sort: bade elements ek-ek karke end mein 'bubble' hote hain."], "mini": "Search + sort wala menu program", "qs": ["Linear search se element dhundo.", "Binary search se element dhundo (array sorted ho).", "Bubble sort likho.", "Selection sort likho.", "Insertion sort likho.", "Array ko descending order mein sort karo.", "Array ka k-th sabse chhota element nikalo.", "Check karo array sorted hai ya nahi.", "Linear aur binary search mein comparisons ginkar fark dikhao.", "Marks sort karke rank list print karo."]}, {"day": 11, "title": "Revision aur Test Day", "topics": ["Din 1 se 10 ka revision", "Bina dekhe code likhne ki practice", "Jahan atke, un topics ko dobara padhna", "Compiler warnings: gcc -Wall se compile karo"], "tips": ["Aaj naya kuch nahi padhna. Sirf purana pakka karna hai.", "Jo question atke, uska number copy mein likh lo aur baad mein dobara karo."], "mini": "Menu-driven program: area (circle, rectangle, triangle)", "qs": ["Menu-driven program: circle/rectangle/triangle ka area functions se.", "Array mein se sirf prime numbers print karo.", "Array ko function se reverse karo.", "Number ke digits shabdon mein print karo (123 se one two three).", "Matrix mein sabse zyada sum wali row dhundo.", "Bubble sort karke binary search chalao (ek hi program mein).", "Array ke har element ka factorial nikalo.", "User se n lekar number pyramid banao.", "Function se check karo number palindrome hai ya nahi.", "Array mein har element ki frequency nikalo."]}, {"day": 12, "title": "Strings", "topics": ["String = char array jo '\\0' par khatam hota hai", "gets/fgets, puts, scanf('%s') ka fark", "string.h: strlen, strcpy, strcmp, strcat", "Library functions ke bina khud ka logic"], "tips": ["gets() ka use mat karo, fgets() use karo (gets unsafe hai).", "String ke liye ek extra jagah '\\0' ki chahiye."], "mini": "String toolkit (reverse, palindrome, count)", "qs": ["strlen ke bina string ki length nikalo.", "String ko reverse karo.", "Check karo string palindrome hai ya nahi.", "Vowels, consonants, digits aur spaces ginto.", "Library function ke bina string ko uppercase mein badlo.", "strcat ke bina do strings jodo.", "strcmp ke bina do strings compare karo.", "Sentence mein kitne words hain, ginti karo.", "Check karo do strings anagram hain ya nahi.", "String se saare vowels hata do."]}, {"day": 13, "title": "Pointers (Basics)", "topics": ["Address (&) aur dereference (*)", "Pointer declaration aur initialization", "Call by reference", "Pointer to pointer", "NULL pointer aur dangling pointer"], "tips": ["Pointer ek aisa variable hai jisme kisi doosre variable ka address hota hai.", "Aaj samajh na aaye to ghabrao mat, diagram kaagaz par banao."], "mini": "Pointer se swap, sum, max", "qs": ["Pointer banao aur variable ki value, address aur pointer ki value print karo.", "Pointers se do numbers swap karo.", "Pointer to pointer banao aur **p se value print karo.", "Pointers se do numbers ka sum nikalo.", "Pointers lekar function banao jo bada number return kare.", "Alag-alag pointer types ka sizeof print karo.", "Ek function se do outputs (sum aur product) pointers ke through lao.", "Output batao: int a=5, *p=&a; *p=*p+1; printf(\"%d\", a);", "const int* aur int* const ka fark chhote demo se dikhao.", "Program ke har variable ki value aur address print karo."]}, {"day": 14, "title": "Pointers aur Arrays", "topics": ["Array name = pehle element ka address", "Pointer arithmetic (p+1, p++)", "Array aur string function ko pass karna", "Array of pointers aur function pointer"], "tips": ["arr[i] aur *(arr+i) bilkul same hain.", "Pointer arithmetic mein p+1 ka matlab ek element aage hota hai, ek byte nahi."], "mini": "Pointer se string aur array ke programs", "qs": ["Pointer se array print karo.", "Pointer arithmetic se array ka sum nikalo.", "Pointers se array ko reverse karo.", "Pointer se array ka maximum nikalo.", "Pointers se ek string doosri mein copy karo.", "Pointer se string ki length nikalo.", "Array function ko pass karo aur uske andar badlo.", "2D array function ko pass karo aur print karo.", "Strings ke array of pointers banao aur print karo.", "Function pointer se add aur subtract call karo."]}, {"day": 15, "title": "Structures, Union, Enum", "topics": ["struct banana aur members access karna (.)", "Array of structures", "Nested structure", "Pointer to structure (->)", "typedef, union, enum"], "tips": ["Struct ke alag-alag members alag memory lete hain, union mein sab ek hi memory share karte hain.", "Pointer se struct access karna ho to -> use karo."], "mini": "Student record system", "qs": ["Student struct banao (naam, roll, marks) aur print karo.", "5 students ka array banao aur topper nikalo.", "Students ko marks ke hisaab se sort karo.", "Employee struct banao aur bonus ke saath salary nikalo.", "Nested structure: student ke andar date of birth.", "Structure ko function mein pass karo.", "Struct ka pointer banao aur -> se members print karo.", "typedef se struct ka chhota naam banao aur use karo.", "Union aur struct ka size alag-alag print karke fark dikhao.", "Enum se din ke naam (Mon se Sun) banao aur use karo."]}, {"day": 16, "title": "Dynamic Memory Allocation", "topics": ["Stack aur heap ka fark", "malloc, calloc, realloc, free", "Memory leak aur dangling pointer", "malloc ke baad NULL check zaroori"], "tips": ["Jo memory malloc se li, use free() se wapas karna zaroori hai.", "free karne ke baad pointer ko NULL kar do."], "mini": "Dynamic array jo size ke saath badhta hai", "qs": ["malloc se n integers ka array banao, input lo, sum nikalo.", "calloc se array banao aur uski initial values print karo.", "realloc se array ka size badhao.", "User ki di hui length ke hisaab se string ke liye memory lo.", "Dynamic 2D matrix banao.", "Structures ka dynamic array banao.", "Dynamic array mein sabse bada element nikalo.", "malloc ke baad NULL check karna seekho aur use karo.", "Jaanboojhkar memory leak banao, phir free() se theek karo.", "Aisa array banao jo full hone par khud double ho jaye."]}, {"day": 17, "title": "File Handling", "topics": ["fopen, fclose aur file modes (r, w, a, r+, rb, wb)", "fprintf, fscanf, fgets, fputs", "fread, fwrite (binary files)", "fseek, ftell, rewind, feof"], "tips": ["File kholne ke baad NULL check zaroor karo.", "fclose() karna mat bhoolo, warna data save na ho."], "mini": "File-based contact book", "qs": ["File mein kuch text likho.", "File padhkar screen par print karo.", "Existing file mein text append karo.", "File mein characters, words aur lines ginto.", "Ek file ko doosri mein copy karo.", "Student records fprintf se save karo aur wapas padho.", "fwrite/fread se structure file mein save aur load karo.", "File mein koi word search karo.", "Do files ko merge karke teesri file banao.", "fseek aur ftell se file ka size nikalo."]}, {"day": 18, "title": "Linked List aur Stack", "topics": ["Node = data + next pointer", "Insert (start, end) aur delete", "Traversal aur search", "List reverse karna", "Stack: push, pop (array se)"], "tips": ["Linked list pointer ka sabse achha practice hai.", "Pehle kaagaz par boxes aur arrows banao, phir code."], "mini": "Linked list menu program", "qs": ["Node struct banao aur ek node print karo.", "List ke shuru mein node insert karo.", "List ke end mein node insert karo.", "Poori list display karo.", "Pehla node delete karo.", "Value dekar node delete karo.", "List mein kitne nodes hain, ginti karo.", "List mein element search karo.", "Linked list ko reverse karo.", "Array se stack banao (push, pop, display)."]}, {"day": 19, "title": "Final Project: Build", "topics": ["Project chunna: Bank / Student / Library management", "Struct design aur functions mein tod-fod", "Menu aur CRUD operations", "File mein data save/load"], "tips": ["Pehle sabse chhota working version banao, phir features jodo.", "Ek baar mein sab mat likho. Har function ko likhte hi test karo."], "mini": "Management system (CRUD + file)", "qs": ["Project chuno aur 5-6 lines mein likho wo kya karega.", "Struct design karo (kaunse fields chahiye).", "while + switch se main menu banao.", "Add record function banao.", "Display all records function banao.", "ID se search karne ka function banao.", "Update record function banao.", "Delete record function banao.", "Records ko file mein save karo.", "Program shuru hone par file se data load karo."]}, {"day": 20, "title": "Final Project: Test, Polish, Upload", "topics": ["Testing: galat input daalkar dekhna", "gcc -Wall se saare warnings theek karna", "Code mein comments aur README", "GitHub par upload karna"], "tips": ["Real users galat input daalte hain. Negative amount aur duplicate ID jaise cases test karo.", "Ye project resume mein daal sakte ho."], "mini": "Poora project chalakar demo dena", "qs": ["Menu ke saare options chalakar test karo.", "Galat input handle karo (negative, duplicate ID, khaali).", "Code ko functions mein todo aur comments likho.", "gcc -Wall se compile karke saare warnings hatao.", "Memory leaks check karo (free ho raha hai ya nahi).", "README likho: project kya hai aur kaise chalana hai.", "Project GitHub par upload karo.", "Pointers aur structures ke 10 programs bina dekhe dobara likho.", "HackerRank ke 5 C problems solve karo.", "Dost ko 2 minute mein apna project samjhao."]}];
+const CONFIG = { API_URL: "" };            // alag server par backend ho to yahan URL likho, jaise "https://api.example.com"
+const LEVELS = ["Easy","Easy","Easy","Easy","Medium","Medium","Medium","Medium","Challenge","Challenge"];
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const iso = d => { const z = new Date(d.getTime() - d.getTimezoneOffset()*6e4); return z.toISOString().slice(0,10); };
+const todayIso = () => iso(new Date());
+const uid = () => Math.random().toString(36).slice(2,10);
+const sameId = (a,b) => String(a)===String(b);
+const initials = n => String(n).trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+const sha = async s => { try { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join(""); } catch(e){ return "x"+btoa(unescape(encodeURIComponent(s))); } };
+const LOGO = `<svg viewBox="0 0 48 48" role="img" aria-label="Researchers logo"><rect width="48" height="48" rx="12" fill="#16223B"/><rect x="8" y="30" width="32" height="8" rx="4" fill="#FFD84D"/><path d="M17 36V12h9.5a7 7 0 0 1 0 14H17M26 26l8 10" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] ?? null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
+const mem = {};
+
+/* ---------- course maths ---------- */
+const keysOf = d => [...d.topics.map((_,i)=>"d"+d.day+"-t"+i), ...d.qs.map((_,i)=>"d"+d.day+"-q"+i)];
+const qKeysOf = d => d.qs.map((_,i)=>"d"+d.day+"-q"+i);
+const TOTAL_ITEMS = DAYS.reduce((n,d)=>n+keysOf(d).length, 0);
+const TOTAL_Q = DAYS.reduce((n,d)=>n+d.qs.length, 0);
+function summary(p){
+  const done = (p && p.done) || {}, active = (p && p.active) || {};
+  const days = DAYS.map(d => { const ks = keysOf(d); return Math.round(ks.filter(k=>done[k]).length / ks.length * 100); });
+  const programs = DAYS.reduce((n,d)=>n+qKeysOf(d).filter(k=>done[k]).length, 0);
+  const items = Object.keys(done).filter(k=>done[k]).length;
+  const dates = Object.keys(active).sort();
+  return { days, programs, items, pct: Math.round(items/TOTAL_ITEMS*100), daysDone: days.filter(x=>x===100).length, streak: streakOf(active), last: dates.length ? dates[dates.length-1] : null };
+}
+function streakOf(active){ let n=0; const d=new Date(); if(!active[iso(d)]) d.setDate(d.getDate()-1); while(active[iso(d)]){ n++; d.setDate(d.getDate()-1); } return n; }
+function lastText(l){ if(!l) return "abhi shuru nahi"; const diff = Math.round((new Date(todayIso()+"T00:00") - new Date(l+"T00:00"))/864e5); return diff<=0 ? "aaj" : diff===1 ? "kal" : diff+" din pehle"; }
+function currentDay(start){ if(!start) return null; return Math.floor((new Date(todayIso()+"T00:00") - new Date(start+"T00:00"))/864e5)+1; }
+
+/* =====================================================================
+   BACKENDS
+   ===================================================================== */
+const Local = {
+  KEY: "researchers_v1", db: null,
+  init(){ let d = null; try { d = JSON.parse(store.get(this.KEY)); } catch(e){} this.db = Object.assign({users:[],groups:[],session:null}, d || {}); },
+  save(){ store.set(this.KEY, JSON.stringify(this.db)); },
+  pub(u){ return u && {id:u.id,name:u.name,email:u.email}; },
+  async signup({name,email,password}){
+    name = name.trim(); email = email.trim().toLowerCase();
+    if (name.length<2) throw new Error("Naam 2 se 60 characters ka rakho.");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("Sahi email daalo.");
+    if (password.length<6) throw new Error("Password kam se kam 6 characters ka rakho.");
+    if (this.db.users.some(u=>u.email===email)) throw new Error("Is email se account pehle se hai. Log in karo.");
+    const u = {id:uid(),name,email,pw:await sha(password),progress:{start:null,done:{},active:{}}};
+    this.db.users.push(u); this.db.session = u.id; this.save(); return this.pub(u);
+  },
+  async login({email,password}){
+    const h = await sha(password), u = this.db.users.find(u=>u.email===email.trim().toLowerCase() && u.pw===h);
+    if (!u) throw new Error("Email ya password galat hai.");
+    this.db.session = u.id; this.save(); return this.pub(u);
+  },
+  async logout(){ this.db.session = null; this.save(); },
+  async me(){ return this.pub(this.db.users.find(u=>u.id===this.db.session)) || null; },
+  _u(){ return this.db.users.find(u=>u.id===this.db.session); },
+  async getProgress(){ return this._u().progress; },
+  async saveProgress(p){ this._u().progress = p; this.save(); },
+  async listGroups(){ return this.db.groups.filter(g=>g.members.includes(this.db.session)).map(g=>({id:g.id,name:g.name,code:g.code,count:g.members.length})); },
+  async createGroup(name){
+    name = name.trim(); if (name.length<2) throw new Error("Group ka naam 2 se 50 characters ka rakho.");
+    const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let code; do { code = Array.from({length:6},()=>A[Math.floor(Math.random()*A.length)]).join(""); } while (this.db.groups.some(g=>g.code===code));
+    const g = {id:uid(),name,code,members:[this.db.session]}; this.db.groups.push(g); this.save(); return {id:g.id,name,code};
+  },
+  async joinGroup(code){
+    const g = this.db.groups.find(x=>x.code===code.trim().toUpperCase());
+    if (!g) throw new Error("Ye code kisi group se match nahi hua. Dobara check karo.");
+    if (g.members.includes(this.db.session)) throw new Error("Aap pehle se is group mein ho.");
+    g.members.push(this.db.session); this.save(); return {id:g.id,name:g.name,code:g.code};
+  },
+  async getGroup(id){
+    const g = this.db.groups.find(x=>x.id===id); if (!g || !g.members.includes(this.db.session)) throw new Error("Group nahi mila.");
+    return {id:g.id,name:g.name,code:g.code,members:g.members.map(mid=>{const u=this.db.users.find(x=>x.id===mid);return {id:u.id,name:u.name,progress:u.progress};})};
+  },
+  async leaveGroup(id){ const g=this.db.groups.find(x=>x.id===id); if(!g) return; g.members=g.members.filter(m=>m!==this.db.session); if(!g.members.length) this.db.groups=this.db.groups.filter(x=>x!==g); this.save(); }
+};
+
+const Remote = {
+  TK: "researchers_token",
+  base: () => (CONFIG.API_URL || "").replace(/\/$/,""),
+  async req(path, method="GET", body){
+    const t = store.get(this.TK);
+    let r;
+    try { r = await fetch(this.base()+"/api"+path, {method, headers:Object.assign({"Content-Type":"application/json"}, t?{Authorization:"Bearer "+t}:{}), body: body?JSON.stringify(body):undefined}); }
+    catch(e){ throw new Error("Server se connect nahi ho paya. Internet check karo."); }
+    let j = {}; try { j = await r.json(); } catch(e){}
+    if (r.status===401 && path!=="/login") { store.del(this.TK); }
+    if (!r.ok) throw new Error(j.error || "Kuch gadbad hui ("+r.status+").");
+    return j;
+  },
+  init(){},
+  async signup(d){ const j = await this.req("/signup","POST",d); store.set(this.TK,j.token); return j.user; },
+  async login(d){ const j = await this.req("/login","POST",d); store.set(this.TK,j.token); return j.user; },
+  async logout(){ store.del(this.TK); },
+  async me(){ if(!store.get(this.TK)) return null; try { return (await this.req("/me")).user; } catch(e){ if (/connect/.test(e.message)) throw e; return null; } },
+  async getProgress(){ return (await this.req("/progress")).progress; },
+  async saveProgress(p){ await this.req("/progress","PUT",{progress:p}); },
+  async listGroups(){ return (await this.req("/groups")).groups; },
+  async createGroup(name){ return (await this.req("/groups","POST",{name})).group; },
+  async joinGroup(code){ return (await this.req("/groups/join","POST",{code})).group; },
+  async getGroup(id){ return (await this.req("/groups/"+id)).group; },
+  async leaveGroup(id){ await this.req("/groups/"+id+"/leave","POST"); }
+};
+
+let API = Local, MODE = "local";
+async function detectBackend(){
+  try {
+    const c = new AbortController(); const to = setTimeout(()=>c.abort(), 2500);
+    const r = await fetch(Remote.base()+"/api/health", {signal:c.signal}); clearTimeout(to);
+    if (r.ok) { const j = await r.json(); if (j && j.app==="researchers") { API = Remote; MODE = "api"; } }
+  } catch(e){}
+  API.init();
+}
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let U = null;                               // logged-in user
+let S = {start:null, done:{}, active:{}};   // my progress
+let ui = {tab:"tracker", sel:1, authMode:"login", groups:[], groupId:null, group:null, gLoading:false, resetArmed:false, leaveArmed:false, sync:"", authErr:""};
+let saveTimer = null, pollTimer = null;
+
+function queueSave(){
+  clearTimeout(saveTimer); ui.sync = "saving"; paintSync();
+  saveTimer = setTimeout(async () => {
+    saveTimer = null;
+    try { await API.saveProgress({start:S.start, done:S.done, active:S.active}); ui.sync = "saved"; }
+    catch(e){ ui.sync = "error"; toast(e.message); }
+    paintSync();
+  }, 400);
+}
+const syncText = () => ui.sync==="saving" ? "Saving..." : ui.sync==="saved" ? "Saved" : ui.sync==="error" ? "Save nahi hua" : "";
+function paintSync(){ const e = $("#sync"); if (e) e.textContent = syncText(); }
+async function flushSave(){ if (!saveTimer) return; clearTimeout(saveTimer); saveTimer = null; try { await API.saveProgress({start:S.start,done:S.done,active:S.active}); ui.sync="saved"; } catch(e){ ui.sync="error"; } }
+
+function toast(t){ const e=document.createElement("div"); e.className="toast"; e.setAttribute("role","status"); e.textContent=t; document.body.appendChild(e); setTimeout(()=>e.remove(),2800); }
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+function render(){
+  const ae = document.activeElement; let sel = null;
+  if (ae && ae !== document.body && ae.dataset) {
+    if (ae.dataset.k) sel = `[data-k="${ae.dataset.k}"]`;
+    else if (ae.dataset.a) sel = `[data-a="${ae.dataset.a}"]` + (ae.dataset.d ? `[data-d="${ae.dataset.d}"]` : "") + (ae.dataset.g ? `[data-g="${ae.dataset.g}"]` : "");
+    else if (ae.id) sel = "#"+ae.id;
+  }
+  const y = window.scrollY;
+  $("#app").innerHTML = U ? renderApp() : renderAuth();
+  if (sel) { const n = $("#app").querySelector(sel); if (n) n.focus({preventScroll:true}); }
+  window.scrollTo(0, y);
+  if (U) tickTimer();
+}
+
+/* ---------- auth ---------- */
+function renderAuth(){
+  const login = ui.authMode==="login";
+  return `<div class="authgrid">
+   <section>
+     <div class="brand">${LOGO}<b><span class="hl">Researchers</span></b></div>
+     <h1 style="margin-top:1.2rem">Saath padho. <span class="hl">Saath C seekho.</span></h1>
+     <p class="muted" style="margin-top:.7rem;max-width:34rem">20 din mein C programming. Apna progress track karo aur dekho aapke group mein kaun kitne programs khatam kar chuka hai.</p>
+     <ul class="pitch">
+       <li><i>01</i><span>20 din ka plan, 200 practice programs, ek tick mein progress.</span></li>
+       <li><i>02</i><span>Group banao, dosto ko code se jodo, leaderboard dekho.</span></li>
+       <li><i>03</i><span>Focus timer aur streak se padhai ka rhythm banao.</span></li>
+     </ul>
+   </section>
+   <section class="panel">
+     <div class="atabs" role="tablist">
+       <button class="tab" role="tab" aria-selected="${login}" data-a="authmode" data-v="login">Log in</button>
+       <button class="tab" role="tab" aria-selected="${!login}" data-a="authmode" data-v="signup">Sign up</button>
+     </div>
+     <form id="authform" novalidate>
+       ${login?"":`<label class="f">Poora naam<input class="t" name="name" autocomplete="name" placeholder="Aarav Sharma" required></label>`}
+       <label class="f">Email<input class="t" name="email" type="email" autocomplete="email" placeholder="you@college.edu" required></label>
+       <label class="f">Password<input class="t" name="password" type="password" autocomplete="${login?"current-password":"new-password"}" placeholder="Kam se kam 6 characters" required></label>
+       <div class="err" id="autherr" role="alert" ${ui.authErr?"":"hidden"}>${esc(ui.authErr)}</div>
+       <button class="btn primary" style="width:100%" id="authbtn">${login?"Log in":"Account banao"}</button>
+     </form>
+     ${MODE==="local"?`<p class="small muted" style="margin-top:1rem">Demo mode: data sirf is browser mein save hota hai. Backend jodne par ye sab devices par chalega.</p><button class="btn sm" style="margin-top:.6rem" data-a="demo">Demo data ke saath try karo</button>`:""}
+   </section></div>`;
+}
+
+/* ---------- app shell ---------- */
+function renderApp(){
+  return `<header class="top">
+      <button class="brand" data-a="gohome" aria-label="Researchers home">${LOGO}<b><span class="hl">Researchers</span></b></button>
+      <div class="who"><span class="small muted" id="sync" aria-live="polite">${syncText()}</span><span class="avatar" title="${esc(U.name)}">${esc(initials(U.name))}</span>
+        <span class="small" style="font-weight:600">${esc(U.name.split(" ")[0])}</span>
+        <button class="btn sm" data-a="theme">Theme</button><button class="btn sm" data-a="logout">Log out</button></div>
+    </header>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="${ui.tab==="tracker"}" data-a="tab" data-v="tracker">My tracker</button>
+      <button class="tab" role="tab" aria-selected="${ui.tab==="group"}" data-a="tab" data-v="group">Group</button>
+    </div>
+    <main>${ui.tab==="tracker" ? renderTracker() : renderGroupTab()}</main>`;
+}
+
+/* ---------- tracker ---------- */
+function statusLine(){
+  const cd = currentDay(S.start), sm = summary(S);
+  if (cd === null) return "Start date set karo, phir main bataunga aap on track ho ya nahi.";
+  if (cd < 1) return "Plan "+(1-cd)+" din baad shuru hoga.";
+  if (cd > 20) return sm.daysDone===20 ? "20 din poore. Zabardast kaam!" : "20 din ho gaye, "+(20-sm.daysDone)+" din ka kaam baaki hai. Chalte raho.";
+  const expected = cd-1;
+  return sm.daysDone >= expected ? "Aaj Day "+cd+". Aap on track ho." : "Aaj Day "+cd+". Aap "+(expected-sm.daysDone)+" din peeche ho. Aaj thoda extra karke pakad lo.";
+}
+function row(k, html){ const on = !!S.done[k]; return `<label class="chk ${on?"done":""}"><input type="checkbox" data-k="${k}" ${on?"checked":""}><span class="t">${html}</span></label>`; }
+function renderTracker(){
+  const sm = summary(S), d = DAYS[ui.sel-1], cd = currentDay(S.start), full = sm.days[ui.sel-1]===100;
+  return `
+  <div class="hero">
+    <section class="panel">
+      <h1>C in <span class="hl">20 Days</span></h1>
+      <div class="pct" style="margin-top:.9rem">${sm.pct}%</div>
+      <div class="bar" role="progressbar" aria-valuenow="${sm.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Overall progress"><i style="width:${sm.pct}%"></i></div>
+      <p class="small muted">${sm.items} / ${TOTAL_ITEMS} kaam poore &middot; ${sm.programs}/${TOTAL_Q} programs</p>
+      <div class="stats"><div class="stat"><b>${sm.daysDone}/20</b><span>Din complete</span></div><div class="stat"><b>${sm.streak}</b><span>Din ka streak</span></div><div class="stat"><b>${cd&&cd>=1&&cd<=20?cd:"-"}</b><span>Aaj ka din</span></div></div>
+      <div class="startrow"><label class="small muted" for="start">Shuru ki date</label><input id="start" type="date" value="${S.start||""}"></div>
+      <p class="small" style="margin-top:.6rem" id="status">${esc(statusLine())}</p>
+    </section>
+    <section class="panel timer"><div><h2>Focus timer</h2><p class="small muted" style="margin-top:.2rem">25 min padho, 5 min break.</p></div>
+      <div class="clock" id="clock" role="timer">25:00</div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn primary" data-a="tstart" id="tbtn">Start</button><button class="btn" data-a="treset">Reset</button></div></section>
+  </div>
+  <h2 class="sec">Memory map</h2>
+  <p class="legend">Har cell ek din hai. Peela = chal raha hai, hara = poora. Laal bindi = aaj.</p>
+  <div class="mem">${DAYS.map(x=>{const p=sm.days[x.day-1];return `<button class="cell ${p===100?"full":p>0?"part":""} ${x.day===ui.sel?"sel":""} ${cd===x.day?"today":""}" data-a="sel" data-d="${x.day}" aria-current="${x.day===ui.sel}" aria-label="Day ${x.day}, ${p} percent done"><i style="height:${p}%"></i><b>${String(x.day).padStart(2,"0")}</b><small>${p}%</small></button>`}).join("")}</div>
+  <section class="panel" id="daypanel">
+    <div class="dayhead"><div><div class="addr">0x${ui.sel.toString(16).toUpperCase().padStart(2,"0")} &middot; DAY ${d.day} &middot; ${sm.days[ui.sel-1]}% done</div><h2 style="font-size:1.6rem;margin-top:.2rem">${esc(d.title)}</h2><p class="small muted" style="margin-top:.3rem">Mini program: ${esc(d.mini)}</p></div>
+      <button class="btn sm" data-a="all" data-d="${d.day}">${full?"Sab untick karo":"Sab poora mark karo"}</button></div>
+    <div class="cols">
+      <div><h3>Kya seekhna hai</h3>${d.topics.map((t,i)=>row("d"+d.day+"-t"+i,esc(t))).join("")}${d.tips.map(t=>`<div class="tip">${esc(t)}</div>`).join("")}</div>
+      <div><h3>Practice programs</h3>${d.qs.map((q,i)=>row("d"+d.day+"-q"+i,esc(q)+`<span class="lv ${LEVELS[i]}">${LEVELS[i]}</span>`)).join("")}</div>
+    </div>
+    <div class="nav"><button class="btn" data-a="prev" ${ui.sel===1?"disabled":""}>Pichla din</button><button class="btn primary" data-a="next" ${ui.sel===20?"disabled":""}>Agla din</button></div>
+  </section>
+  <p style="margin-top:1.4rem"><button class="btn sm danger" data-a="reset">${ui.resetArmed?"Pakka reset karna hai? Dobara dabao":"Mera progress reset karo"}</button></p>`;
+}
+
+/* ---------- group ---------- */
+function renderGroupTab(){
+  const forms = `<details class="panel" ${ui.groups.length?"":"open"} style="margin-top:1rem"><summary>Naya group banao ya code se join karo</summary>
+    <div class="row2">
+      <form data-form="create"><label class="f" for="gname">Naya group banao</label><div class="inline"><input class="t" id="gname" placeholder="BCA Sem 2 Batch" maxlength="50"><button class="btn primary">Banao</button></div></form>
+      <form data-form="join"><label class="f" for="gcode">Invite code se join karo</label><div class="inline"><input class="t" id="gcode" placeholder="K7M2QX" maxlength="6" style="text-transform:uppercase"><button class="btn primary">Join</button></div></form>
+    </div></details>`;
+  if (!ui.groups.length && !ui.gLoading) return `<div class="empty"><b style="color:var(--ink);display:block">Abhi koi group nahi hai</b>Group banao aur dosto ko invite code bhejo, phir sabka progress yahan dikhega.</div>${forms}`;
+  const chips = `<div class="chips" role="group" aria-label="Aapke groups">${ui.groups.map(g=>`<button class="chip" data-a="pickgroup" data-g="${esc(g.id)}" aria-pressed="${sameId(g.id,ui.groupId)}">${esc(g.name)} (${g.count})</button>`).join("")}</div>`;
+  const g = ui.group;
+  if (!g) return chips + `<p class="muted">Loading...</p>` + forms;
+  const rows = g.members.map(m => ({m, s:summary(sameId(m.id,U.id) ? S : m.progress)})).sort((a,b)=> b.s.programs-a.s.programs || b.s.daysDone-a.s.daysDone || a.m.name.localeCompare(b.m.name));
+  const totalProg = rows.reduce((n,r)=>n+r.s.programs,0), avg = Math.round(rows.reduce((n,r)=>n+r.s.pct,0)/rows.length);
+  const best = rows[0] && rows[0].s.programs>0 ? rows[0].m.name.split(" ")[0] : "-";
+  return `${chips}
+  <div class="panel" style="display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap">
+    <div><h2>${esc(g.name)}</h2><p class="small muted">Invite code: <span class="code">${esc(g.code)}</span></p></div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn sm" data-a="copycode">Code copy karo</button><button class="btn sm" data-a="refresh">Refresh</button><button class="btn sm danger" data-a="leave">${ui.leaveArmed?"Pakka? Dobara dabao":"Group chhodo"}</button></div>
+  </div>
+  <div class="gsum"><div class="panel"><b>${rows.length}</b><span class="small muted">Members</span></div><div class="panel"><b>${totalProg}</b><span class="small muted">Group ke total programs</span></div><div class="panel"><b>${avg}%</b><span class="small muted">Average progress</span></div><div class="panel"><b style="font-size:1.1rem;padding:.25rem 0">${esc(best)}</b><span class="small muted">Sabse aage</span></div></div>
+  <h2 class="sec" style="margin-top:.4rem">Leaderboard</h2><p class="legend" style="margin-bottom:.7rem">Kitne C programs (practice questions) khatam hue, ${TOTAL_Q} mein se. Neeche 20 dabbe 20 din dikhate hain.</p>
+  ${rows.map((r,i)=>`<article class="panel mrow ${sameId(r.m.id,U.id)?"me":""}" aria-label="${esc(r.m.name)}">
+     <div class="mtop"><span class="rank ${i===0&&r.s.programs>0?"r1":""}">#${i+1}</span><span class="avatar">${esc(initials(r.m.name))}</span>
+       <span class="mname">${esc(r.m.name)}${sameId(r.m.id,U.id)?" (aap)":""}</span>
+       <span class="mscore">${r.s.programs}<small> / ${TOTAL_Q} programs</small></span></div>
+     <div class="bar" style="margin:.2rem 0" role="progressbar" aria-valuenow="${Math.round(r.s.programs/TOTAL_Q*100)}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(r.m.name)} programs"><i style="width:${r.s.programs/TOTAL_Q*100}%"></i></div>
+     <div class="meta"><span>${r.s.daysDone}/20 din complete</span><span>Streak: ${r.s.streak}</span><span>Overall ${r.s.pct}%</span><span>Last active: ${lastText(r.s.last)}</span></div>
+     <div class="strip" role="img" aria-label="${r.s.daysDone} din poore, 20 mein se">${r.s.days.map((p,di)=>`<s class="${p===100?"f":p>0?"p":""}" title="Day ${di+1}: ${p}%"></s>`).join("")}</div>
+   </article>`).join("")}
+  ${forms}`;
+}
+
+/* =====================================================================
+   ACTIONS
+   ===================================================================== */
+/* timer: end-time based, tab background mein bhi sahi chalta hai */
+let T = {left:1500, end:null, run:false, id:null};
+const fmt = s => String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+function tickTimer(){
+  if (T.run) T.left = Math.max(0, Math.ceil((T.end - Date.now())/1000));
+  const c=$("#clock"); if (c) c.textContent = fmt(T.left);
+  const b=$("#tbtn"); if (b) b.textContent = T.run ? "Pause" : (T.left<1500 && T.left>0 ? "Resume" : "Start");
+  if (T.run && T.left<=0){ clearInterval(T.id); T.run=false; T.left=0; toast("Time poora! 5 min ka break lo."); if (b) b.textContent="Start"; }
+}
+function timerStart(){
+  if (T.run){ tickTimer(); clearInterval(T.id); T.run=false; tickTimer(); return; }
+  if (T.left<=0) T.left=1500;
+  T.end = Date.now() + T.left*1000; T.run = true; clearInterval(T.id); T.id = setInterval(tickTimer, 250); tickTimer();
+}
+
+async function setTab(t){
+  await flushSave(); ui.tab = t; render();
+  clearInterval(pollTimer);
+  if (t==="group") { loadGroups(); if (MODE==="api") pollTimer = setInterval(()=>{ if (ui.tab==="group" && ui.groupId && !document.hidden) loadGroup(true); }, 15000); }
+}
+async function loadGroups(keep){
+  ui.gLoading = true;
+  try {
+    ui.groups = await API.listGroups();
+    if (!ui.groups.some(g=>sameId(g.id,ui.groupId))) { ui.groupId = ui.groups.length ? ui.groups[0].id : null; ui.group = null; }
+  } catch(e){ toast(e.message); }
+  ui.gLoading = false; render();
+  if (ui.groupId) loadGroup(true);
+}
+async function loadGroup(silent){
+  if (!ui.groupId) return;
+  try { ui.group = await API.getGroup(ui.groupId); } catch(e){ if(!silent) toast(e.message); }
+  if (ui.tab==="group") render();
+}
+
+async function boot(){
+  await detectBackend();
+  try { U = await API.me(); if (U) S = normalize(await API.getProgress()); } catch(e){ U = null; toast(e.message); }
+  render();
+}
+const normalize = p => ({start:(p&&p.start)||null, done:(p&&p.done)||{}, active:(p&&p.active)||{}});
+
+document.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (e.target.id === "authform") {
+    const d = Object.fromEntries(new FormData(e.target)), btn = $("#authbtn"), err = $("#autherr");
+    btn.disabled = true; err.hidden = true;
+    try {
+      U = ui.authMode==="signup" ? await API.signup(d) : await API.login(d);
+      S = normalize(await API.getProgress()); ui.tab="tracker"; ui.sel=1; ui.authErr=""; ui.sync=""; render();
+    } catch(ex){ ui.authErr = ex.message; err.textContent = ex.message; err.hidden = false; btn.disabled = false; }
+    return;
+  }
+  const f = e.target.dataset.form;
+  if (f==="create") { const v=$("#gname").value; try { const g = await API.createGroup(v); ui.groupId = g.id; toast("Group ban gaya. Code: "+g.code); await loadGroups(); } catch(ex){ toast(ex.message); } }
+  if (f==="join") { const v=$("#gcode").value; try { const g = await API.joinGroup(v); ui.groupId = g.id; toast(g.name+" join kar liya"); await loadGroups(); } catch(ex){ toast(ex.message); } }
+});
+
+document.addEventListener("change", e => {
+  if (e.target.id === "start") { S.start = e.target.value || null; queueSave(); render(); return; }
+  const k = e.target.dataset && e.target.dataset.k; if (!k) return;
+  const before = summary(S).days[ui.sel-1];
+  if (e.target.checked) { S.done[k] = true; S.active[todayIso()] = true; } else delete S.done[k];
+  queueSave(); render();
+  if (e.target.checked && before<100 && summary(S).days[ui.sel-1]===100) toast("Day "+ui.sel+" poora! Shabaash.");
+});
+
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-a]"); if (!el) return;
+  const a = el.dataset.a;
+  if (a!=="reset" && ui.resetArmed){ ui.resetArmed=false; if (U && ui.tab==="tracker") render(); }
+  if (a!=="leave" && ui.leaveArmed){ ui.leaveArmed=false; if (U && ui.tab==="group") render(); }
+  switch(a){
+    case "authmode": ui.authMode = el.dataset.v; ui.authErr=""; render(); break;
+    case "demo": await seedDemo(); break;
+    case "theme": { const r=document.documentElement; const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches; r.dataset.theme=dark?"light":"dark"; store.set("researchers_theme", r.dataset.theme); break; }
+    case "logout": clearInterval(pollTimer); clearTimeout(saveTimer); try { await API.saveProgress({start:S.start,done:S.done,active:S.active}); } catch(_){} await API.logout(); U=null; S={start:null,done:{},active:{}}; ui={tab:"tracker",sel:1,authMode:"login",groups:[],groupId:null,group:null,gLoading:false,resetArmed:false,leaveArmed:false,sync:"",authErr:""}; render(); break;
+    case "gohome": ui.tab="tracker"; setTab("tracker"); window.scrollTo(0,0); break;
+    case "tab": setTab(el.dataset.v); break;
+    case "sel": { ui.sel = +el.dataset.d; render(); const p=$("#daypanel"); if (p && p.getBoundingClientRect().top > innerHeight*0.7) p.scrollIntoView({behavior:"smooth",block:"start"}); break; }
+    case "prev": ui.sel = Math.max(1,ui.sel-1); render(); break;
+    case "next": ui.sel = Math.min(20,ui.sel+1); render(); break;
+    case "all": { const d=DAYS[+el.dataset.d-1], on = summary(S).days[d.day-1]!==100; keysOf(d).forEach(k=>{ if(on) S.done[k]=true; else delete S.done[k]; }); if(on) S.active[todayIso()]=true; queueSave(); render(); break; }
+    case "reset": if (!ui.resetArmed){ ui.resetArmed=true; render(); setTimeout(()=>{ if(ui.resetArmed){ ui.resetArmed=false; if(U&&ui.tab==="tracker") render(); } },4000); } else { S={start:null,done:{},active:{}}; ui.resetArmed=false; ui.sel=1; queueSave(); render(); toast("Progress reset ho gaya."); } break;
+    case "tstart": timerStart(); break;
+    case "treset": clearInterval(T.id); T={left:1500,end:null,run:false,id:null}; tickTimer(); break;
+    case "pickgroup": ui.groupId = el.dataset.g; ui.group = null; render(); loadGroup(); break;
+    case "refresh": await loadGroup(); toast("Refresh ho gaya"); break;
+    case "copycode": try { await navigator.clipboard.writeText(ui.group.code); toast("Code copy hua: "+ui.group.code); } catch(_) { toast("Code: "+ui.group.code); } break;
+    case "leave": if (!ui.leaveArmed) { ui.leaveArmed=true; render(); setTimeout(()=>{ if(ui.leaveArmed){ ui.leaveArmed=false; if(U&&ui.tab==="group") render(); } },4000); } else { ui.leaveArmed=false; try { await API.leaveGroup(ui.groupId); ui.groupId=null; ui.group=null; await loadGroups(); toast("Group chhod diya"); } catch(ex){ toast(ex.message); } } break;
+  }
+});
+window.addEventListener("focus", () => { if (U && ui.tab==="group" && ui.groupId) loadGroup(true); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden && T.run) tickTimer(); });
+window.addEventListener("pagehide", () => { if (U && saveTimer) { try { API.saveProgress({start:S.start,done:S.done,active:S.active}); } catch(e){} } });
+
+/* ---------- demo data (sirf local mode) ---------- */
+async function seedDemo(){
+  const L = Local, pw = await sha("demo123");
+  const mk = (full, extraQ, activeDays) => {
+    const done = {}, active = {};
+    DAYS.forEach(d => { if (d.day<=full) keysOf(d).forEach(k=>done[k]=true); });
+    const nd = DAYS[full]; if (nd) { keysOf(nd).slice(0,extraQ).forEach(k=>done[k]=true); }
+    for (let i=0;i<activeDays;i++){ const x=new Date(); x.setDate(x.getDate()-i); active[iso(x)]=true; }
+    const s=new Date(); s.setDate(s.getDate()-Math.max(full+1,2)); return {start:iso(s), done, active};
+  };
+  const people = [["Aarav Sharma","aarav@demo.edu",mk(3,5,4)],["Diya Verma","diya@demo.edu",mk(6,7,6)],["Kabir Singh","kabir@demo.edu",mk(1,9,2)],["Meera Joshi","meera@demo.edu",mk(4,2,3)]];
+  L.db = {users:[],groups:[],session:null};
+  const ids = people.map(([name,email,progress]) => { const u={id:uid(),name,email,pw,progress}; L.db.users.push(u); return u.id; });
+  L.db.groups.push({id:uid(),name:"BCA Batch 2026",code:"BCA26X",members:ids});
+  L.db.session = ids[0]; L.save();
+  U = await L.me(); S = normalize(await L.getProgress()); ui.tab="tracker"; render();
+  toast("Demo ready: aarav@demo.edu / demo123. Group tab dekho.");
+}
+
+try { const th = store.get("researchers_theme"); if (th) document.documentElement.dataset.theme = th; } catch(e){}
+boot();
+</script>
+</body>
+</html>
